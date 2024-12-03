@@ -16,14 +16,23 @@ using System.Drawing.Imaging;
 
 public class ExternalWindowManager : MonoBehaviour
 {
-    private const int scoreWidth = 135;
-    private const int scoreHeight = 22;
-    private const int scoreYOffset = 243;
-    private const int scoreXOffset = 436;
-    private const int numberHeight = 22;
-    private const int numberWidth = 15;
-    private const int ballYOffset = 198;
-    private const int ballXOffset = 556;
+    // private const int scoreWidth = 135;
+    // private const int scoreHeight = 22;
+    // private const int scoreYOffset = 243;
+    // private const int scoreXOffset = 436;
+    // private const int numberHeight = 22;
+    // private const int numberWidth = 15;
+    // private const int ballYOffset = 198;
+    // private const int ballXOffset = 556;
+
+    private const int scoreWidth = 104;
+    private const int scoreHeight = 20;
+    private const int scoreYOffset = 4;
+    private const int scoreXOffset = 160;
+    private const int numberHeight = 20;
+    private const int numberWidth = 13;
+    private const int ballYOffset = 45;
+    private const int ballXOffset = 258;
 
     public static long Score => score;
     public static int Ball => ball;
@@ -82,11 +91,13 @@ public class ExternalWindowManager : MonoBehaviour
     {
         yield return new WaitForSeconds(20);
 
-        UnityEngine.Debug.Log("Going to press the space bar...");
-        PressKey(0x20, false); // Press space
+        yield return new WaitWhile(() => User32.UnityWindow == User32.GetActiveWindow());
+
+        UnityEngine.Debug.Log("Going to press the enter button...");
+        PressKey(0x0D, false); // Press space
         yield return new WaitForSeconds(0.9f); // Small delay
-        PressKey(0x20, true);  // Release space
-        UnityEngine.Debug.Log("Space bar pressed and released.");
+        PressKey(0x0D, true);  // Release space
+        UnityEngine.Debug.Log("Enter pressed and released.");
     }
 
 
