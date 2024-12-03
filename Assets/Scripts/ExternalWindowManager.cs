@@ -40,6 +40,8 @@ public class ExternalWindowManager : MonoBehaviour
     private static long score;
     private static int ball;
 
+    public static int frame = 0; 
+
     // public string FilePath = @"C:\Program Files (x86)\Microsoft Games\Pinball\pinball.exe";
     // public string WorkingDirectory = @"C:\Program Files (x86)\Microsoft Games\Pinball";
     // public string WindowTitle = "3D Pinball for Windows - Space Cadet";
@@ -62,9 +64,27 @@ public class ExternalWindowManager : MonoBehaviour
     void Start()
     {
         rect = new User32.Rect();
-        proc = Process.GetProcesses().Where(x => x.ProcessName.Contains("pinball")).FirstOrDefault();
+        proc = Process.GetProcesses().Where(x => x.ProcessName.Contains("VPinballX")).FirstOrDefault();
+        Process[] processes = Process.GetProcesses();
+        
+        // Log running processes
+        UnityEngine.Debug.Log("Running Processes:");
+        
+        foreach (var process in processes)
+        {
+            try
+            {
+                UnityEngine.Debug.Log($"Process Name: {process.ProcessName}, ID: {process.Id}");
+            }
+            catch
+            {
+                // Handle cases where the process details can't be accessed
+                UnityEngine.Debug.Log("Could not access process details.");
+            }
+        }
         if (proc == null)
         {
+            UnityEngine.Debug.Log("Entered process loop"); 
             proc = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -82,23 +102,23 @@ public class ExternalWindowManager : MonoBehaviour
         User32.UnityWindow = User32.GetActiveWindow();
 
        
-        // Start the game by simulating a space bar press after waiting for the game to load
-        StartCoroutine(SimulateSpaceBarPress());
+        // // Start the game by simulating a enter after waiting for the game to load
+        // StartCoroutine(SimulateSpaceBarPress());
     }
 
-    // Simulate a spacebar press to start the game
-    private IEnumerator SimulateSpaceBarPress()
-    {
-        yield return new WaitForSeconds(20);
+    // // Simulate a spacebar press to start the game
+    // private IEnumerator SimulateSpaceBarPress()
+    // {
+    //     yield return new WaitForSeconds(20);
 
-        yield return new WaitWhile(() => User32.UnityWindow == User32.GetActiveWindow());
+    //     yield return new WaitWhile(() => User32.UnityWindow == User32.GetActiveWindow());
 
-        UnityEngine.Debug.Log("Going to press the enter button...");
-        PressKey(0x0D, false); // Press space
-        yield return new WaitForSeconds(0.9f); // Small delay
-        PressKey(0x0D, true);  // Release space
-        UnityEngine.Debug.Log("Enter pressed and released.");
-    }
+    //     UnityEngine.Debug.Log("Going to press the enter button...");
+    //     PressKey(0x0D, false); // Press space
+    //     yield return new WaitForSeconds(0.9f); // Small delay
+    //     PressKey(0x0D, true);  // Release space
+    //     UnityEngine.Debug.Log("Enter pressed and released.");
+    // }
 
 
     // Update is called once per frame
@@ -129,7 +149,7 @@ public class ExternalWindowManager : MonoBehaviour
         else
         {
             //Uncomment for debug
-            //UnityEngine.Debug.Log($"Found Window {width},{height}");
+            UnityEngine.Debug.Log($"Found Window {width},{height}");
         }
 
         // Create Images in memory
@@ -149,9 +169,9 @@ public class ExternalWindowManager : MonoBehaviour
         {
             bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
 
-            ////Uncomment - If you weant to save frames to disk
-            //bmp.Save("C:/temp/" + frame + ".bmp", System.Drawing.Imaging.ImageFormat.Bmp);
-            //frame++;
+            // //Uncomment - If you weant to save frames to disk
+            bmp.Save("C:/Users/richa/OneDrive/Desktop/frames/" + frame + ".bmp", System.Drawing.Imaging.ImageFormat.Bmp);
+            frame++;
 
             var buffer = new byte[ms.Length];
             ms.Position = 0;
@@ -187,7 +207,7 @@ public class ExternalWindowManager : MonoBehaviour
             ball = GetNumber(bmp, ballXOffset, ballYOffset);
 
             //Uncomment for debug
-            //UnityEngine.Debug.Log("Ball " + ball + ", Score " + score);
+            UnityEngine.Debug.Log("Ball " + ball + ", Score " + score);
 
             lg.DrawImage(current, new Point(0, 0));
         }
@@ -245,6 +265,7 @@ public class ExternalWindowManager : MonoBehaviour
         }
 
         //Known pixel layouts for numbers
+        UnityEngine.Debug.Log(j); 
         switch (j)
         {
             case "-0-2-6-410-919-919-9-5-2-3-1-0":
