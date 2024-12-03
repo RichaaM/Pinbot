@@ -31,9 +31,12 @@ public class ExternalWindowManager : MonoBehaviour
     private static long score;
     private static int ball;
 
-    public string FilePath = @"C:\Program Files (x86)\Microsoft Games\Pinball\pinball.exe";
-    public string WorkingDirectory = @"C:\Program Files (x86)\Microsoft Games\Pinball";
-    public string WindowTitle = "3D Pinball for Windows - Space Cadet";
+    // public string FilePath = @"C:\Program Files (x86)\Microsoft Games\Pinball\pinball.exe";
+    // public string WorkingDirectory = @"C:\Program Files (x86)\Microsoft Games\Pinball";
+    // public string WindowTitle = "3D Pinball for Windows - Space Cadet";
+    public string FilePath = @"C:\Visual Pinball\VPinballX.exe";
+    public string WorkingDirectory = @"C:\Visual Pinball";
+    public string WindowTitle = "Visual Pinball Player";
     public RenderTexture renderTexture;
 
     private Process proc;
@@ -68,7 +71,24 @@ public class ExternalWindowManager : MonoBehaviour
             proc.Start();
         }
         User32.UnityWindow = User32.GetActiveWindow();
+
+       
+        // Start the game by simulating a space bar press after waiting for the game to load
+        StartCoroutine(SimulateSpaceBarPress());
     }
+
+    // Simulate a spacebar press to start the game
+    private IEnumerator SimulateSpaceBarPress()
+    {
+        yield return new WaitForSeconds(20);
+
+        UnityEngine.Debug.Log("Going to press the space bar...");
+        PressKey(0x20, false); // Press space
+        yield return new WaitForSeconds(0.9f); // Small delay
+        PressKey(0x20, true);  // Release space
+        UnityEngine.Debug.Log("Space bar pressed and released.");
+    }
+
 
     // Update is called once per frame
     void Update()
