@@ -16,14 +16,23 @@ using System.Drawing.Imaging;
 
 public class ExternalWindowManager : MonoBehaviour
 {
-    private const int scoreWidth = 135;
-    private const int scoreHeight = 22;
-    private const int scoreYOffset = 243;
-    private const int scoreXOffset = 436;
-    private const int numberHeight = 22;
-    private const int numberWidth = 15;
-    private const int ballYOffset = 198;
-    private const int ballXOffset = 556;
+    // private const int scoreWidth = 135;
+    // private const int scoreHeight = 22;
+    // private const int scoreYOffset = 243;
+    // private const int scoreXOffset = 436;
+    // private const int numberHeight = 22;
+    // private const int numberWidth = 15;
+    // private const int ballYOffset = 198;
+    // private const int ballXOffset = 556;
+
+    private const int scoreWidth = 104;
+    private const int scoreHeight = 20;
+    private const int scoreYOffset = 4;
+    private const int scoreXOffset = 160;
+    private const int numberHeight = 18;
+    private const int numberWidth = 13;
+    private const int ballYOffset = 45;
+    private const int ballXOffset = 251;
 
     public static long Score => score;
     public static int Ball => ball;
@@ -31,9 +40,14 @@ public class ExternalWindowManager : MonoBehaviour
     private static long score;
     private static int ball;
 
-    public string FilePath = @"C:\Program Files (x86)\Microsoft Games\Pinball\pinball.exe";
-    public string WorkingDirectory = @"C:\Program Files (x86)\Microsoft Games\Pinball";
-    public string WindowTitle = "3D Pinball for Windows - Space Cadet";
+    public static int frame = 0; 
+
+    // public string FilePath = @"C:\Program Files (x86)\Microsoft Games\Pinball\pinball.exe";
+    // public string WorkingDirectory = @"C:\Program Files (x86)\Microsoft Games\Pinball";
+    // public string WindowTitle = "3D Pinball for Windows - Space Cadet";
+    public string FilePath = @"C:\Visual Pinball\VPinballX.exe";
+    public string WorkingDirectory = @"C:\Visual Pinball";
+    public string WindowTitle = "Visual Pinball Player";
     public RenderTexture renderTexture;
 
     private Process proc;
@@ -46,13 +60,41 @@ public class ExternalWindowManager : MonoBehaviour
             Application.runInBackground = true;
     }
 
+    // To read from txt file
+    string ReadFile(string filePath)
+    {
+             
+        // Read the entire file content
+        string content = File.ReadAllText(filePath);
+        
+        return content; 
+    }
+
     // Start is called before the first frame update
     void Start()
     {
         rect = new User32.Rect();
-        proc = Process.GetProcesses().Where(x => x.ProcessName.Contains("pinball")).FirstOrDefault();
+        proc = Process.GetProcesses().Where(x => x.ProcessName.Contains("VPinballX")).FirstOrDefault();
+        Process[] processes = Process.GetProcesses();
+        
+        // Log running processes
+        UnityEngine.Debug.Log("Running Processes:");
+        
+        foreach (var process in processes)
+        {
+            try
+            {
+                UnityEngine.Debug.Log($"Process Name: {process.ProcessName}, ID: {process.Id}");
+            }
+            catch
+            {
+                // Handle cases where the process details can't be accessed
+                UnityEngine.Debug.Log("Could not access process details.");
+            }
+        }
         if (proc == null)
         {
+            UnityEngine.Debug.Log("Entered process loop"); 
             proc = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -68,7 +110,26 @@ public class ExternalWindowManager : MonoBehaviour
             proc.Start();
         }
         User32.UnityWindow = User32.GetActiveWindow();
+
+       
+        // // Start the game by simulating a enter after waiting for the game to load
+        // StartCoroutine(SimulateSpaceBarPress());
     }
+
+    // // Simulate a spacebar press to start the game
+    // private IEnumerator SimulateSpaceBarPress()
+    // {
+    //     yield return new WaitForSeconds(20);
+
+    //     yield return new WaitWhile(() => User32.UnityWindow == User32.GetActiveWindow());
+
+    //     UnityEngine.Debug.Log("Going to press the enter button...");
+    //     PressKey(0x0D, false); // Press space
+    //     yield return new WaitForSeconds(0.9f); // Small delay
+    //     PressKey(0x0D, true);  // Release space
+    //     UnityEngine.Debug.Log("Enter pressed and released.");
+    // }
+
 
     // Update is called once per frame
     void Update()
@@ -98,7 +159,7 @@ public class ExternalWindowManager : MonoBehaviour
         else
         {
             //Uncomment for debug
-            //UnityEngine.Debug.Log($"Found Window {width},{height}");
+            UnityEngine.Debug.Log($"Found Window {width},{height}");
         }
 
         // Create Images in memory
@@ -118,9 +179,9 @@ public class ExternalWindowManager : MonoBehaviour
         {
             bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
 
-            ////Uncomment - If you weant to save frames to disk
-            //bmp.Save("C:/temp/" + frame + ".bmp", System.Drawing.Imaging.ImageFormat.Bmp);
-            //frame++;
+            // //Uncomment - If you weant to save frames to disk
+            bmp.Save("C:/Users/richa/OneDrive/Desktop/frames/" + frame + ".bmp", System.Drawing.Imaging.ImageFormat.Bmp);
+            frame++;
 
             var buffer = new byte[ms.Length];
             ms.Position = 0;
@@ -147,16 +208,18 @@ public class ExternalWindowManager : MonoBehaviour
         // If the frame has changed, check the digits
         if (!Compare(current, last))
         {
-            score = 0;
-            for (int i = 0; i < scoreWidth / numberWidth; i++)
-            {
-                score *= 10;
-                score += GetNumber(current, i * numberWidth);
-            }
-            ball = GetNumber(bmp, ballXOffset, ballYOffset);
+            // score = 0;
+            // for (int i = 0; i < scoreWidth / numberWidth; i++)
+            // {
+            //     score *= 10;
+            //     // score += GetNumber(current, i * numberWidth);
+            // }
+            score = Int32.Parse(ReadFile(@"C:\Users\richa\OneDrive\Desktop\data\score.txt")); 
+            
+            ball = Int32.Parse(ReadFile(@"C:\Users\richa\OneDrive\Desktop\data\ballcount.txt"));
 
             //Uncomment for debug
-            //UnityEngine.Debug.Log("Ball " + ball + ", Score " + score);
+            UnityEngine.Debug.Log("Ball " + ball + ", Score " + score);
 
             lg.DrawImage(current, new Point(0, 0));
         }
@@ -214,13 +277,15 @@ public class ExternalWindowManager : MonoBehaviour
         }
 
         //Known pixel layouts for numbers
+        UnityEngine.Debug.Log("Ball pixel values: "); 
+        UnityEngine.Debug.Log(j); 
         switch (j)
         {
-            case "-0-2-6-410-919-919-9-5-2-3-1-0":
+            case "-0-0-0-1-313131312-1-0-0-0":
                 return 1;
-            case "-2-6-410-612-614-918-814-6-3-1":
+            case "-0-0-5-7-7-8111211-6-0-0-0":
                 return 2;
-            case "-1-3-3-8-513-717-919-914-6-5-2":
+            case "-0-0-1-7-6-510131312-1-0-0":
                 return 3;
             case "-0-3-7-4-9-510-510-919-919-9-0":
                 return 4;

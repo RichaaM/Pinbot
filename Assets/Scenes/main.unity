@@ -149,9 +149,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ee9644e520f56143b32dbca924839a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FilePath: C:\Program Files (x86)\Microsoft Games\Pinball\pinball.exe
-  WorkingDirectory: C:\Program Files (x86)\Microsoft Games\Pinball
-  WindowTitle: 3D Pinball for Windows - Space Cadet
+  FilePath: C:\Visual Pinball\VPinballX.exe
+  WorkingDirectory: C:\Visual Pinball
+  WindowTitle: Visual Pinball Player
   renderTexture: {fileID: 8400000, guid: c54252a318751b34d8cf7a2c34084ab1, type: 2}
 --- !u!4 &310066787
 Transform:
