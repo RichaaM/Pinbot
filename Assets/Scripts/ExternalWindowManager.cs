@@ -29,10 +29,10 @@ public class ExternalWindowManager : MonoBehaviour
     private const int scoreHeight = 20;
     private const int scoreYOffset = 4;
     private const int scoreXOffset = 160;
-    private const int numberHeight = 20;
+    private const int numberHeight = 18;
     private const int numberWidth = 13;
     private const int ballYOffset = 45;
-    private const int ballXOffset = 258;
+    private const int ballXOffset = 251;
 
     public static long Score => score;
     public static int Ball => ball;
@@ -58,6 +58,16 @@ public class ExternalWindowManager : MonoBehaviour
     {
         if (Application.isEditor)
             Application.runInBackground = true;
+    }
+
+    // To read from txt file
+    string ReadFile(string filePath)
+    {
+             
+        // Read the entire file content
+        string content = File.ReadAllText(filePath);
+        
+        return content; 
     }
 
     // Start is called before the first frame update
@@ -198,13 +208,15 @@ public class ExternalWindowManager : MonoBehaviour
         // If the frame has changed, check the digits
         if (!Compare(current, last))
         {
-            score = 0;
-            for (int i = 0; i < scoreWidth / numberWidth; i++)
-            {
-                score *= 10;
-                score += GetNumber(current, i * numberWidth);
-            }
-            ball = GetNumber(bmp, ballXOffset, ballYOffset);
+            // score = 0;
+            // for (int i = 0; i < scoreWidth / numberWidth; i++)
+            // {
+            //     score *= 10;
+            //     // score += GetNumber(current, i * numberWidth);
+            // }
+            score = Int32.Parse(ReadFile(@"C:\Users\richa\OneDrive\Desktop\data\score.txt")); 
+            
+            ball = Int32.Parse(ReadFile(@"C:\Users\richa\OneDrive\Desktop\data\ballcount.txt"));
 
             //Uncomment for debug
             UnityEngine.Debug.Log("Ball " + ball + ", Score " + score);
@@ -265,14 +277,15 @@ public class ExternalWindowManager : MonoBehaviour
         }
 
         //Known pixel layouts for numbers
+        UnityEngine.Debug.Log("Ball pixel values: "); 
         UnityEngine.Debug.Log(j); 
         switch (j)
         {
-            case "-0-2-6-410-919-919-9-5-2-3-1-0":
+            case "-0-0-0-1-313131312-1-0-0-0":
                 return 1;
-            case "-2-6-410-612-614-918-814-6-3-1":
+            case "-0-0-5-7-7-8111211-6-0-0-0":
                 return 2;
-            case "-1-3-3-8-513-717-919-914-6-5-2":
+            case "-0-0-1-7-6-510131312-1-0-0":
                 return 3;
             case "-0-3-7-4-9-510-510-919-919-9-0":
                 return 4;
