@@ -55,3 +55,5 @@ Mono**/
 
 *.dll
 *.exe
+
+venv/

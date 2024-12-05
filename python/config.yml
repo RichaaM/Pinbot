@@ -1,0 +1,15 @@
+score_camera:
+  autoexposure: 1.0
+  autofocus: 0.0
+  exposure: -7.0
+  gain: 0.0
+  brightness: 100.0
+  contrast: 255.0
+  saturation: 0.0
+  zoom: 100.0
+  index: 0
+playfield_camera:
+  index: 1
+start_camera:
+  roi: [115, 150, 365, 120]
+  index: 2
