@@ -1,1 +1,2 @@
 -r:System.Drawing.dll 
+-r:System.Windows.Forms.dll

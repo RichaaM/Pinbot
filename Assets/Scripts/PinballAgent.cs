@@ -6,6 +6,8 @@ using MLAgents;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using WindowsInput; 
+using WindowsInput.Native;
 
 public class PinballAgent : Agent
 {
@@ -56,6 +58,8 @@ public class PinballAgent : Agent
         // Perform choosen action
         var action = (int)vectorAction[0];
 
+        InputSimulator inputSimulator = new InputSimulator();
+
         // Simulate key press
         switch (action)
         {
@@ -64,32 +68,32 @@ public class PinballAgent : Agent
                 Debug.Log("Idle action");
                 break;
             case 1:
-                ExternalWindowManager.PressKey('Z');
+                inputSimulator.Keyboard.KeyDown(VirtualKeyCode.VK_Z);
                 actionMask.Add(1); //Disable Z press
                 try { actionMask.Remove(2); } catch { } // Try remove mask for action pair
                 break;
             case 2:
-                ExternalWindowManager.PressKey('Z', true);
+                inputSimulator.Keyboard.KeyUp(VirtualKeyCode.VK_Z);
                 actionMask.Add(2); //Disable Z release
                 try { actionMask.Remove(1); } catch { } // Try remove mask for action pair
                 break;
             case 3:
-                ExternalWindowManager.PressKey('/');
+                inputSimulator.Keyboard.KeyDown(VirtualKeyCode.OEM_2);
                 actionMask.Add(3); //Disable / press
                 try { actionMask.Remove(4); } catch { } // Try remove mask for action pair
                 break;
             case 4:
-                ExternalWindowManager.PressKey('/', true);
+                inputSimulator.Keyboard.KeyUp(VirtualKeyCode.OEM_2);
                 actionMask.Add(4); //Disable / relaease
                 try { actionMask.Remove(3); } catch { } // Try remove mask for action pair
                 break;
             case 5:
-                ExternalWindowManager.PressKey(0x20); //space
+                inputSimulator.Keyboard.KeyDown(VirtualKeyCode.SPACE); //space
                 actionMask.Add(5); //Disable SPACE release
                 try { actionMask.Remove(6); } catch { } // Try remove mask for action pair
                 break;
             case 6:
-                ExternalWindowManager.PressKey(0x20, true); //space
+                inputSimulator.Keyboard.KeyUp(VirtualKeyCode.SPACE); //space
                 actionMask.Add(6); //Disable SPACE release
                 try { actionMask.Remove(5); } catch { } // Try remove mask for action pair
                 break;

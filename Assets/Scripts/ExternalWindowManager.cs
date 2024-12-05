@@ -13,6 +13,8 @@ using System.Runtime.InteropServices;
 using System.Drawing;
 using Graphics = System.Drawing.Graphics;
 using System.Drawing.Imaging;
+using WindowsInput; 
+using WindowsInput.Native;
 
 public class ExternalWindowManager : MonoBehaviour
 {
@@ -214,14 +216,26 @@ public class ExternalWindowManager : MonoBehaviour
             //     score *= 10;
             //     // score += GetNumber(current, i * numberWidth);
             // }
-            score = Int32.Parse(ReadFile(@"C:\Users\richa\OneDrive\Desktop\data\score.txt")); 
-            
-            ball = Int32.Parse(ReadFile(@"C:\Users\richa\OneDrive\Desktop\data\ballcount.txt"));
 
+            try{
+                score = Int32.Parse(ReadFile(@"C:\Users\richa\OneDrive\Desktop\data\score.txt")); 
+            }
+            catch{
+                UnityEngine.Debug.Log("Could not read score");
+            }
+            try {
+                ball = Int32.Parse(ReadFile(@"C:\Users\richa\OneDrive\Desktop\data\ballcount.txt"));
+            }
+            catch{
+                UnityEngine.Debug.Log("Could not read ball");
+            }
+            // TypeKey('k'); 
             //Uncomment for debug
             UnityEngine.Debug.Log("Ball " + ball + ", Score " + score);
 
             lg.DrawImage(current, new Point(0, 0));
+
+
         }
         ng.Dispose();
         lg.Dispose();
@@ -252,6 +266,20 @@ public class ExternalWindowManager : MonoBehaviour
         UnityEngine.Debug.Log($"Key {c},{(keyup ? " Release" : "Press")}");
         if (keyup) { User32.KeyUp(c); } else { User32.KeyDown(c); }
     }
+
+    // [DllImport ("User32.dll")]
+    // static extern int SetForegroundWindow(IntPtr point);
+
+    // public void TypeKey(char c)
+    // {
+    //     // Process p = Process.GetProcessesByName("").FirstOrDefault();
+    //     if (proc != null)
+    //     {
+    //         IntPtr h = proc.MainWindowHandle;
+    //         SetForegroundWindow(h);
+    //         System.Windows.Forms.SendKeys.SendWait("z");
+    //     }
+    // }
 
     /// <summary>
     /// Detect score number using pixels
@@ -336,6 +364,7 @@ public class ExternalWindowManager : MonoBehaviour
         {
             public int left;
             public int top;
+
             public int right;
             public int bottom;
         }
