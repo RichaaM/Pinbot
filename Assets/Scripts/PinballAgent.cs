@@ -149,13 +149,13 @@ public class PinballAgent : Agent
             //SetReward(0.000000001f * ExternalWindowManager.Score); // Read the scoreboard. Assume max score 999,999,999
             Debug.Log($"Game Ended Score: {ExternalWindowManager.Score} | Total Reward: {GetCumulativeReward().ToString()}");
 
-            // Press F2 to start new game
-            ExternalWindowManager.PressKey(0x71); //f2
-            ExternalWindowManager.PressKey(0x71, true); //f2
+            // Press Enter to start new game
+            inputSimulator.Keyboard.KeyDown(VirtualKeyCode.RETURN); //enter
+            inputSimulator.Keyboard.KeyUp(VirtualKeyCode.RETURN); //enter
 
-            // If high score press enter
-            ExternalWindowManager.PressKey(0x0D); //f2
-            ExternalWindowManager.PressKey(0x0D, true); //f2
+            // // If high score press enter
+            // ExternalWindowManager.PressKey(0x0D); //f2
+            // ExternalWindowManager.PressKey(0x0D, true); //f2 
 
             // Reset reward
             previousScore = 0;
@@ -171,9 +171,12 @@ public class PinballAgent : Agent
 
     public void ResetKeys()
     {
-        ExternalWindowManager.PressKey('Z', true);
-        ExternalWindowManager.PressKey('/', true);
-        ExternalWindowManager.PressKey(0x20, true); //space
+
+        InputSimulator inputSimulator = new InputSimulator();
+
+        inputSimulator.Keyboard.KeyUp(VirtualKeyCode.VK_Z);
+        inputSimulator.Keyboard.KeyUp(VirtualKeyCode.OEM_2);
+        inputSimulator.Keyboard.KeyUp(VirtualKeyCode.SPACE); //space
 
         actionMask = new List<int>(new[] {
                 0, //Disable Idle
