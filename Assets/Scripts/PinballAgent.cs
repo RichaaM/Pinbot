@@ -60,6 +60,16 @@ public class PinballAgent : Agent
 
         InputSimulator inputSimulator = new InputSimulator();
 
+        // raise keys if down
+        if (inputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.LSHIFT))
+        {
+            inputSimulator.Keyboard.KeyUp(VirtualKeyCode.LSHIFT);
+        }
+        if (inputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.RSHIFT))
+        {
+            inputSimulator.Keyboard.KeyUp(VirtualKeyCode.RSHIFT);
+        }
+
         // Simulate key press
         switch (action)
         {
@@ -67,11 +77,13 @@ public class PinballAgent : Agent
                 Debug.Log("Idle action");
                 break;
             case 1:
-                StartCoroutine(SimulateKeyPress(inputSimulator, VirtualKeyCode.LSHIFT, 0.1f)); // Left flipper
+                // currentCoroutine = StartCoroutine(SimulateKeyPress(inputSimulator, VirtualKeyCode.LSHIFT, 0.1f)); // Left flipper
+                inputSimulator.Keyboard.KeyDown(VirtualKeyCode.LSHIFT);
                 Debug.Log("Left flipper pressed");
                 break;
             case 2:
-                StartCoroutine(SimulateKeyPress(inputSimulator, VirtualKeyCode.RSHIFT, 0.1f)); // Right flipper
+                // currentCoroutine = StartCoroutine(SimulateKeyPress(inputSimulator, VirtualKeyCode.RSHIFT, 0.1f)); // Right flipper
+                inputSimulator.Keyboard.KeyDown(VirtualKeyCode.RSHIFT);
                 Debug.Log("Right flipper pressed");
                 break;
             case 3:
