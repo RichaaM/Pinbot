@@ -79,21 +79,6 @@ public class ExternalWindowManager : MonoBehaviour
         proc = Process.GetProcesses().Where(x => x.ProcessName.Contains("VPinballX")).FirstOrDefault();
         Process[] processes = Process.GetProcesses();
         
-        // Log running processes
-        UnityEngine.Debug.Log("Running Processes:");
-        
-        foreach (var process in processes)
-        {
-            try
-            {
-                UnityEngine.Debug.Log($"Process Name: {process.ProcessName}, ID: {process.Id}");
-            }
-            catch
-            {
-                // Handle cases where the process details can't be accessed
-                UnityEngine.Debug.Log("Could not access process details.");
-            }
-        }
         if (proc == null)
         {
             UnityEngine.Debug.Log("Entered process loop"); 
@@ -113,24 +98,8 @@ public class ExternalWindowManager : MonoBehaviour
         }
         User32.UnityWindow = User32.GetActiveWindow();
 
-       
-        // // Start the game by simulating a enter after waiting for the game to load
-        // StartCoroutine(SimulateSpaceBarPress());
     }
 
-    // // Simulate a spacebar press to start the game
-    // private IEnumerator SimulateSpaceBarPress()
-    // {
-    //     yield return new WaitForSeconds(20);
-
-    //     yield return new WaitWhile(() => User32.UnityWindow == User32.GetActiveWindow());
-
-    //     UnityEngine.Debug.Log("Going to press the enter button...");
-    //     PressKey(0x0D, false); // Press space
-    //     yield return new WaitForSeconds(0.9f); // Small delay
-    //     PressKey(0x0D, true);  // Release space
-    //     UnityEngine.Debug.Log("Enter pressed and released.");
-    // }
 
 
     // Update is called once per frame
@@ -161,7 +130,7 @@ public class ExternalWindowManager : MonoBehaviour
         else
         {
             //Uncomment for debug
-            UnityEngine.Debug.Log($"Found Window {width},{height}");
+            // UnityEngine.Debug.Log($"Found Window {width},{height}");
         }
 
         // Create Images in memory
@@ -182,8 +151,8 @@ public class ExternalWindowManager : MonoBehaviour
             bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
 
             // //Uncomment - If you weant to save frames to disk
-            bmp.Save("C:/Users/richa/OneDrive/Desktop/frames/" + frame + ".bmp", System.Drawing.Imaging.ImageFormat.Bmp);
-            frame++;
+            // bmp.Save("C:/Users/richa/OneDrive/Desktop/frames/" + frame + ".bmp", System.Drawing.Imaging.ImageFormat.Bmp);
+            // frame++;
 
             var buffer = new byte[ms.Length];
             ms.Position = 0;
@@ -207,36 +176,24 @@ public class ExternalWindowManager : MonoBehaviour
             new Rectangle(new Point(scoreXOffset, scoreYOffset), scoreSize),
             GraphicsUnit.Pixel);
 
-        // If the frame has changed, check the digits
-        if (!Compare(current, last))
-        {
-            // score = 0;
-            // for (int i = 0; i < scoreWidth / numberWidth; i++)
-            // {
-            //     score *= 10;
-            //     // score += GetNumber(current, i * numberWidth);
-            // }
-
-            try{
-                score = Int32.Parse(ReadFile(@"C:\Users\richa\OneDrive\Desktop\data\score.txt")); 
-            }
-            catch{
-                UnityEngine.Debug.Log("Could not read score");
-            }
-            try {
-                ball = Int32.Parse(ReadFile(@"C:\Users\richa\OneDrive\Desktop\data\ballcount.txt"));
-            }
-            catch{
-                UnityEngine.Debug.Log("Could not read ball");
-            }
-            // TypeKey('k'); 
-            //Uncomment for debug
-            UnityEngine.Debug.Log("Ball " + ball + ", Score " + score);
-
-            lg.DrawImage(current, new Point(0, 0));
-
-
+        try{
+            score = Int32.Parse(ReadFile(@"C:\Users\Pinbot\Desktop\data\score.txt")); 
         }
+        catch{
+            UnityEngine.Debug.Log("Could not read score");
+        }
+        try {
+            ball = Int32.Parse(ReadFile(@"C:\Users\Pinbot\Desktop\data\ballcount.txt"));
+        }
+        catch{
+            UnityEngine.Debug.Log("Could not read ball");
+        }
+
+        //Uncomment for debug
+        UnityEngine.Debug.Log("Ball " + ball + ", Score " + score);
+
+        lg.DrawImage(current, new Point(0, 0));
+
         ng.Dispose();
         lg.Dispose();
         cg.Dispose();
@@ -251,21 +208,7 @@ public class ExternalWindowManager : MonoBehaviour
         yield return new WaitForSeconds(1);
     }
 
-    /// <summary>
-    /// Press a key virually
-    /// </summary>
-    /// <param name="c"></param>
-    /// <param name="keyup"></param>
-    public static void PressKey(char c, bool keyup = false)
-    {
-        UnityEngine.Debug.Log($"Key {c},{(keyup ? " Release" : "Press")}");
-        if (keyup) { User32.KeyUp(c); } else { User32.KeyDown(c); }
-    }
-    public static void PressKey(int c, bool keyup = false)
-    {
-        UnityEngine.Debug.Log($"Key {c},{(keyup ? " Release" : "Press")}");
-        if (keyup) { User32.KeyUp(c); } else { User32.KeyDown(c); }
-    }
+
 
     // [DllImport ("User32.dll")]
     // static extern int SetForegroundWindow(IntPtr point);
@@ -280,60 +223,6 @@ public class ExternalWindowManager : MonoBehaviour
     //         System.Windows.Forms.SendKeys.SendWait("z");
     //     }
     // }
-
-    /// <summary>
-    /// Detect score number using pixels
-    /// </summary>
-    /// <param name="a"></param>
-    /// <param name="xOffset"></param>
-    /// <param name="yOffset"></param>
-    /// <returns></returns>
-    private static int GetNumber(Bitmap a, int xOffset, int yOffset = 0)
-    {
-        string j = "";
-        for (int x = 0; x < numberWidth; x++)
-        {
-            int rowCount = 0;
-            for (int y = 0; y < numberHeight; y++)
-            {
-                if (a.GetPixel(xOffset + x, yOffset + y).B > 128)
-                {
-                    rowCount++;
-                }
-            }
-            j += rowCount.ToString().PadLeft(2, '-');
-        }
-
-        //Known pixel layouts for numbers
-        UnityEngine.Debug.Log("Ball pixel values: "); 
-        UnityEngine.Debug.Log(j); 
-        switch (j)
-        {
-            case "-0-0-0-1-313131312-1-0-0-0":
-                return 1;
-            case "-0-0-5-7-7-8111211-6-0-0-0":
-                return 2;
-            case "-0-0-1-7-6-510131312-1-0-0":
-                return 3;
-            case "-0-3-7-4-9-510-510-919-919-9-0":
-                return 4;
-            case "-1-3-512-716-817-816-712-5-3-1":
-                return 5;
-            case "-0-4-8-715-812-715-816-710-4-0":
-                return 6;
-            case "-0-410-614-712-610-5-9-4-7-3-0":
-                return 7;
-            case "-3-7-716-914-713-818-916-7-5-2":
-                return 8;
-            case "-0-410-716-815-712-815-7-9-4-0":
-                return 9;
-            case "-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0":
-            case "-0-511-715-910-410-915-711-5-0":
-                return 0;
-            default:
-                return 0;
-        }
-    }
 
     /// <summary>
     /// Compare images to see if pixels match
