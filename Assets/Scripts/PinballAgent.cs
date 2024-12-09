@@ -64,40 +64,22 @@ public class PinballAgent : Agent
         switch (action)
         {
             case 0:
-                //Idle
                 Debug.Log("Idle action");
                 break;
             case 1:
-                inputSimulator.Keyboard.KeyDown(VirtualKeyCode.LSHIFT);
-                actionMask.Add(1); //Disable LSHIFT press
-                try { actionMask.Remove(2); } catch { } // Try remove mask for action pair
+                StartCoroutine(SimulateKeyPress(inputSimulator, VirtualKeyCode.LSHIFT, 0.1f)); // Left flipper
+                Debug.Log("Left flipper pressed");
                 break;
             case 2:
-                inputSimulator.Keyboard.KeyUp(VirtualKeyCode.LSHIFT);
-                actionMask.Add(2); //Disable LSHIFT release
-                try { actionMask.Remove(1); } catch { } // Try remove mask for action pair
+                StartCoroutine(SimulateKeyPress(inputSimulator, VirtualKeyCode.RSHIFT, 0.1f)); // Right flipper
+                Debug.Log("Right flipper pressed");
                 break;
             case 3:
-                inputSimulator.Keyboard.KeyDown(VirtualKeyCode.RSHIFT);
-                actionMask.Add(3); //Disable RSHIFT press
-                try { actionMask.Remove(4); } catch { } // Try remove mask for action pair
-                break;
-            case 4:
-                inputSimulator.Keyboard.KeyUp(VirtualKeyCode.RSHIFT);
-                actionMask.Add(4); //Disable RSHIFT relaease
-                try { actionMask.Remove(3); } catch { } // Try remove mask for action pair
-                break;
-            case 5:
-                inputSimulator.Keyboard.KeyDown(VirtualKeyCode.RETURN); //enter
-                actionMask.Add(5); //Disable RETURN release
-                try { actionMask.Remove(6); } catch { } // Try remove mask for action pair
-                break;
-            case 6:
-                inputSimulator.Keyboard.KeyUp(VirtualKeyCode.RETURN); //enter
-                actionMask.Add(6); //Disable RETURN release
-                try { actionMask.Remove(5); } catch { } // Try remove mask for action pair
+                StartCoroutine(SimulateKeyPress(inputSimulator, VirtualKeyCode.RETURN, 0.2f)); // Plunger
+                Debug.Log("Plunger pressed");
                 break;
             default:
+                Debug.LogError("Unknown action: " + action);
                 break;
         }
         actionMask.Sort();
@@ -149,9 +131,8 @@ public class PinballAgent : Agent
             //SetReward(0.000000001f * ExternalWindowManager.Score); // Read the scoreboard. Assume max score 999,999,999
             Debug.Log($"Game Ended Score: {ExternalWindowManager.Score} | Total Reward: {GetCumulativeReward().ToString()}");
 
-            // Press Enter to start new game
-            inputSimulator.Keyboard.KeyDown(VirtualKeyCode.VK_1); //enter
-            inputSimulator.Keyboard.KeyUp(VirtualKeyCode.VK_1); //enter
+            // Press 1 button to start new game
+            inputSimulator.Keyboard.KeyPress(VirtualKeyCode.VK_1); 
 
             // // If high score press enter
             // ExternalWindowManager.PressKey(0x0D); //f2
@@ -176,7 +157,7 @@ public class PinballAgent : Agent
 
         inputSimulator.Keyboard.KeyUp(VirtualKeyCode.LSHIFT);
         inputSimulator.Keyboard.KeyUp(VirtualKeyCode.RSHIFT);
-        inputSimulator.Keyboard.KeyUp(VirtualKeyCode.RETURN); //space
+        inputSimulator.Keyboard.KeyUp(VirtualKeyCode.RETURN); //enter
 
         actionMask = new List<int>(new[] {
                 0, //Disable Idle
@@ -224,5 +205,13 @@ public class PinballAgent : Agent
             m_TimeSinceDecision += Time.fixedDeltaTime;
         }
         //}
+    }
+
+    // Coroutine to simulate a key press for a specific duration
+    private IEnumerator SimulateKeyPress(InputSimulator inputSimulator, VirtualKeyCode keyCode, float duration)
+    {
+        inputSimulator.Keyboard.KeyDown(keyCode);
+        yield return new WaitForSeconds(duration);
+        inputSimulator.Keyboard.KeyUp(keyCode);
     }
 }
