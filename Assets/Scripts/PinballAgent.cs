@@ -23,6 +23,8 @@ public class PinballAgent : Agent
     private int previousBall = 0;
     private long previousScore = 0;
 
+    private Coroutine plungerCoroutine;
+
     public override void InitializeAgent()
     {
         m_Academy = FindObjectOfType(typeof(PinballAcademy)) as PinballAcademy;
@@ -44,7 +46,31 @@ public class PinballAgent : Agent
             //5, //Disable Space press
             //6, //Disable Space release 
         });
-        SetActionMask(actionMask);
+        // SetActionMask(actionMask);
+
+        // Start the plunger loop
+        if (plungerCoroutine == null)
+        {
+            plungerCoroutine = StartCoroutine(PlungerLoop());
+        }
+    }
+
+    private IEnumerator PlungerLoop()
+    {
+        InputSimulator inputSimulator = new InputSimulator();
+
+        while (true)
+        {
+            Debug.Log("Pulling back plunger...");
+            // pull back the plunger using the enter key
+            inputSimulator.Keyboard.KeyDown(VirtualKeyCode.RETURN);
+            yield return new WaitForSecondsRealtime(0.5f);
+            Debug.Log("Releasing plunger...");
+            
+            inputSimulator.Keyboard.KeyUp(VirtualKeyCode.RETURN);
+            yield return new WaitForSecondsRealtime(0.5f);
+
+        }
     }
 
     public override void CollectObservations()
@@ -77,18 +103,17 @@ public class PinballAgent : Agent
                 Debug.Log("Idle action");
                 break;
             case 1:
-                // currentCoroutine = StartCoroutine(SimulateKeyPress(inputSimulator, VirtualKeyCode.LSHIFT, 0.1f)); // Left flipper
                 inputSimulator.Keyboard.KeyDown(VirtualKeyCode.LSHIFT);
                 Debug.Log("Left flipper pressed");
                 break;
             case 2:
-                // currentCoroutine = StartCoroutine(SimulateKeyPress(inputSimulator, VirtualKeyCode.RSHIFT, 0.1f)); // Right flipper
                 inputSimulator.Keyboard.KeyDown(VirtualKeyCode.RSHIFT);
                 Debug.Log("Right flipper pressed");
                 break;
             case 3:
-                StartCoroutine(SimulateKeyPress(inputSimulator, VirtualKeyCode.RETURN, 0.2f)); // Plunger
-                Debug.Log("Plunger pressed");
+                inputSimulator.Keyboard.KeyDown(VirtualKeyCode.LSHIFT);
+                inputSimulator.Keyboard.KeyDown(VirtualKeyCode.RSHIFT);
+                Debug.Log("Both flippers pressed");
                 break;
             default:
                 Debug.LogError("Unknown action: " + action);
@@ -119,7 +144,7 @@ public class PinballAgent : Agent
             Debug.Log("Dropped Ball:" + previousBall);
             if (previousBall != 0) // If we drop a ball thats is not game over or starting ball.
             {
-                AddReward(-0.03f); // Droped the ball add negative reward (aka punish); -0.3 is pretty bad. Thats like 30k in points.
+                AddReward(-0.3f); // Droped the ball add negative reward (aka punish); -0.3 is pretty bad. Thats like 30k in points.
             }
 
             //reset keys
@@ -185,7 +210,20 @@ public class PinballAgent : Agent
 
     public override void AgentReset()
     {
+        if (plungerCoroutine != null)
+        {
+            StopCoroutine(plungerCoroutine);
+            plungerCoroutine = StartCoroutine(PlungerLoop());
+        }
+    }
 
+    private void OnDisable()
+    {
+        // Clean up coroutine to avoid memory leaks
+        if (plungerCoroutine != null)
+        {
+            StopCoroutine(plungerCoroutine);
+        }
     }
 
     public override float[] Heuristic()
@@ -217,13 +255,5 @@ public class PinballAgent : Agent
             m_TimeSinceDecision += Time.fixedDeltaTime;
         }
         //}
-    }
-
-    // Coroutine to simulate a key press for a specific duration
-    private IEnumerator SimulateKeyPress(InputSimulator inputSimulator, VirtualKeyCode keyCode, float duration)
-    {
-        inputSimulator.Keyboard.KeyDown(keyCode);
-        yield return new WaitForSeconds(duration);
-        inputSimulator.Keyboard.KeyUp(keyCode);
     }
 }
