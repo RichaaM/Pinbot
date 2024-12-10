@@ -470,7 +470,7 @@ MonoBehaviour:
     resetOnDone: 1
     onDemandDecision: 1
     numberOfActionsBetweenDecisions: 1
-  TimeBetweenDecisionsAtInference: 0.1
+  TimeBetweenDecisionsAtInference: 0.05
 --- !u!114 &1425927763
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -486,7 +486,7 @@ MonoBehaviour:
   m_BrainParameters:
     vectorObservationSize: 2
     numStackedVectorObservations: 1
-    vectorActionSize: 07000000
+    vectorActionSize: 04000000
     vectorActionDescriptions: []
     vectorActionSpaceType: 0
   m_Model: {fileID: 0}
