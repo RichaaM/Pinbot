@@ -27,7 +27,7 @@ default:
 
 VisualPinball:
     trainer: ppo
-    normalize: true
+    normalize: false
     use_recurrent: true
     sequence_length: 32
     num_layers: 2

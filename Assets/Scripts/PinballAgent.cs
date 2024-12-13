@@ -141,22 +141,27 @@ public class PinballAgent : Agent
         // Set previous score;
         previousScore = ExternalWindowManager.Score;
 
-        //2) Ball
-        if (previousBall < ExternalWindowManager.Ball)
+        //2) Location
+        // If the ball is in the air (above the flippers), give a small reward
+        // This is to encourage the agent to keep the ball in the air
+        // 1400 is just above the flippers. Lower values are higher up.
+        if (ExternalWindowManager.PoseY < 1400.0f)
+        {
+            AddReward(0.0001f); //Small reward for keeping the ball in the air
+        }
+
+        //3) Ball
+        if (previousBall < ExternalWindowManager.Ball && ExternalWindowManager.Ball == 9) 
         {
             // Debug.Log("Dropped Ball:" + previousBall);
             if (previousBall != 0) // If we drop a ball that's not the starting ball.
             {
+                Debug.Log("Applying penalty:");
                 AddReward(-0.3f); // Dropped the ball, add negative reward (aka punish); -0.3 is pretty bad. That's like 30k in points.
             }
 
             //reset keys
             ResetKeys();
-        }
-        else if (previousBall == 3 && ExternalWindowManager.Ball == 0) // Penalize dropping the last ball
-        {
-            // Debug.Log("Penalty for dropping ball:" + previousBall);
-            AddReward(-0.3f); // Dropped the last ball, add negative reward (aka punish); -0.3 is pretty bad.
         }
 
         // Set previous score;

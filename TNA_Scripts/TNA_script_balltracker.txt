@@ -2506,6 +2506,9 @@ TotalBonus=0
 TNABonus=0
 
 Sub EndOfBall()
+	' write a really large number to the ball counter file to indicate that bonus is being applied
+	WriteToFile outFile_ball_path, 9
+
 	'Dim AwardPoints1, AwardPoints2, AwardPoints3, TotalBonus, TNABonus
 	Dim tmp
 	If debugGeneral Then Debug.print "*****SUB:EndOfBall()"
@@ -2664,6 +2667,7 @@ End Sub
 ' if not, then check to see if this was the last ball (of the CurrentPlayer)
 '
 Sub EndOfBall2()
+	WriteToFile outFile_ball_path, 9
 	If debugGeneral Then Debug.print "*****SUB:EndOfBall2()"
 	Pupevent 24
 	pDMDSetPage(pDMDBlank)
