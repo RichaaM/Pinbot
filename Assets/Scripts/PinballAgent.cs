@@ -1,4 +1,3 @@
-// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using UnityEngine;
@@ -144,8 +143,7 @@ public class PinballAgent : Agent
             Debug.Log("Dropped Ball:" + previousBall);
             if (previousBall != 0) // If we drop a ball that's not the starting ball.
             {
-            Debug.Log("Penality for dropping ball:" + previousBall);
-            AddReward(-0.3f); // Dropped the ball, add negative reward (aka punish); -0.3 is pretty bad. That's like 30k in points.
+                AddReward(-0.3f); // Dropped the ball, add negative reward (aka punish); -0.3 is pretty bad. That's like 30k in points.
             }
 
             //reset keys
