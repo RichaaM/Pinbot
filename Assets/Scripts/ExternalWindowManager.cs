@@ -201,10 +201,12 @@ public class ExternalWindowManager : MonoBehaviour
         // get ball position
         try {
             float[] pose = ReadCSVLine(@"C:\Users\Pinbot\Desktop\data\ballpose.txt");
-            // if there is no pose, set the values to 0,0,0,0
+            // if there is no pose, set the values to the shooter lane
+            // this way there is no bonus for the ball being in the air
+            // and the model will probably get less confused
             if (pose.GetLength(0) == 0)
             {
-                pose = new float[] {0, 0, 0, 0};
+                pose = new float[] {892.0f, 1743.0f, 0, 0};
             }
             // assign the values to the variables
             pose_x = pose[0];

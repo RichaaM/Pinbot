@@ -2739,6 +2739,7 @@ Sub EndOfBall2()
 			'write ball number to disk (0 means game over)
 
 			WriteToFile outFile_ball_path, 0
+			WriteToFile outFile_score_path, 0
 
             debug.print "No More Balls, High Score Entry"
 			pDMDSetPage(pDMDBlank) 

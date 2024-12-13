@@ -129,6 +129,7 @@ public class PinballAgent : Agent
         //1) Score
         if (previousScore < ExternalWindowManager.Score) // Get the difference between last score (from last descision) and current score.
         {
+            // Debug.Log("Score increased: " + (ExternalWindowManager.Score - previousScore));
             //Small benefit score is going up. 
             //Assume max score 999,999,999 however, each step max will only be a fraction of that.
             AddReward(0.00001f * (ExternalWindowManager.Score - previousScore)); //Small 2k large 20k, not sure what largest bonus is but this will do.
@@ -147,7 +148,7 @@ public class PinballAgent : Agent
         // 1400 is just above the flippers. Lower values are higher up.
         if (ExternalWindowManager.PoseY < 1400.0f)
         {
-            AddReward(0.0001f); //Small reward for keeping the ball in the air
+            AddReward(0.001f); //Small reward for keeping the ball in the air
         }
 
         //3) Ball
@@ -156,8 +157,9 @@ public class PinballAgent : Agent
             // Debug.Log("Dropped Ball:" + previousBall);
             if (previousBall != 0) // If we drop a ball that's not the starting ball.
             {
-                Debug.Log("Applying penalty:");
+                // Debug.Log("Applying penalty:");
                 AddReward(-0.3f); // Dropped the ball, add negative reward (aka punish); -0.3 is pretty bad. That's like 30k in points.
+                // wait a second
             }
 
             //reset keys
@@ -171,6 +173,8 @@ public class PinballAgent : Agent
         Monitor.SetActive(true);
         Monitor.Log("Reward:", GetReward().ToString());
         Monitor.Log("Cumulative Reward:", GetCumulativeReward().ToString());
+        Monitor.Log("Ball:", ExternalWindowManager.Ball.ToString());
+        Monitor.Log("Score:", ExternalWindowManager.Score.ToString());
 
         //// End a training episode
         // End game logic
