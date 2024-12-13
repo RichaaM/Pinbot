@@ -12,6 +12,11 @@
 Option Explicit
 Randomize
 
+' ↓↓↓↓↓↓↓↓↓↓↓PINBOT PEOPLE: CHANGE THIS PATH! ↓↓↓↓↓↓↓↓
+Const data_path = "C:\Users\Pinbot\Desktop\data"
+'  ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+
+
 '         Total Nuclear Annihilation v2.0 - PuP and PUPDMD
 ' ****************************************************************
 ' May 2023
@@ -129,7 +134,7 @@ Const EnableLUTSelector = 1		' 1 - on; 0 - off; if on then the magnasave button 
 '//////////////////////-----Other Options-----///////////////////////
 Const usePuP_GIFS			= False	'True = enable, False = disable the "Last Achievement" PuP gif animations. Depending on your setup, the GIF animations may not scale nicely.
 Const BallsPerGame			= 3  	'Default: 3 balls
-Const ReactorDifficulty 	= 2		'Default: 2 (1-Easy, 2-Med, 3-Hard)
+Const ReactorDifficulty 	= 1		'Default: 2 (1-Easy, 2-Med, 3-Hard)
 Const ReactorLevelMax 		= 9		'Default: 9 (1-9 Reactors)
 
 Const bGameSoundsOn			= True	'True = enable, False = disable TNA game sfx
@@ -144,7 +149,7 @@ Const ReactorPercentLossTime= 3		'Default: After Reactor 3, Reactor Percent drop
 Const ExtraBallAward1 		= 3		'Default: Extra Ball at Reactor 3 Critical stage
 Const ExtraBallAward2 		= 6		'Default: Extra Ball at Reactor 6 Critical stage
 Const KeepLaneSaves 		= 1		'Default: 1 (Yes. 0=No)
-Const AutoPlungeDelay 		= 1.0	'Default: 1.0 seconds
+Const AutoPlungeDelay 		= 0.5	'Default: 1.0 seconds
 Const LeftScoopStrength		= 40	'Default: 45	adjust stregth of left scoop KickOut
 Const RightScoopStrength	= 55	'Default: 55	adjust stregth of right scoop KickOut
 Const BallSearchTime		= 0     'Missing Ball search kicks in after xx seconds (Default: 20), if flippers not used and no switch hits.  O disables ballsearch
@@ -180,31 +185,70 @@ Const AmbientBallShadowOn = 1 		'0 = Static shadow under ball ("flasher" image, 
 Const UseUltraDMD = 0				'0 = Don't use UltraDMD/FlexDMD, 1=Use it
 
 
-' Initialize score file
-Dim objFSO_score
-Dim outFile_score
-Dim objFile_score
 
-Set objFSO_score=CreateObject("Scripting.FileSystemObject")
-outFile_score ="C:\Users\richa\OneDrive\Desktop\data\score.txt"
-Set objFile_score = objFSO_score.CreateTextFile(outFile_score,True)
-objFile_score.Write "0" & vbCrLf
-objFile_score.Close
+Sub WriteToFile(filePath, text)
+    Const ForWriting = 2
+    Dim fso, textFile
 
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    Do
+        On Error Resume Next
+        ' Attempt to open the file for writing
+        Set textFile = fso.OpenTextFile(filePath, ForWriting, True)
+        If Err.Number = 0 Then Exit Do ' Exit loop if no error occurs
+        Err.Clear
+        WScript.Sleep 100 ' Wait for 100 ms before retrying
+    Loop
+    On Error GoTo 0
 
-' initialize ball count file
-Dim objFSO_ball
-Dim outFile_ball
-Dim objFile_ball
+    ' Write the text to the file and close it
+    textFile.WriteLine text
+    textFile.Close
+End Sub
 
-Set objFSO_ball=CreateObject("Scripting.FileSystemObject")
+' Dim data_path
+' data_path = "C:\Users\Pinbot\Desktop\data"
 
-outFile_ball="C:\Users\richa\OneDrive\Desktop\data\ballcount.txt"
-Set objFile_ball = objFSO_ball.CreateTextFile(outFile_ball,True)
-objFile_ball.Write "0" & vbCrLf
-objFile_ball.Close
+' Initialize score and ball file
+Dim outFile_score_path, outFile_ball_path, outFile_processing_ball_end_path
+outFile_score_path = data_path & "\score.txt"
+outFile_ball_path = data_path & "\ballcount.txt"
+outFile_processing_ball_end_path = data_path & "\processing_ball_end.txt"
+WriteToFile outFile_score_path, 0
+WriteToFile outFile_ball_path, 0
+WriteToFile outFile_processing_ball_end_path, 0
 
+' Sub RecordBallPosition
+'     Dim BallX, BallY
 
+' 	BallX = -1.0
+' 	BallY = -1.0
+' 	' if there is an active ball, write its coordinates; otherwise write -1, -1
+' 	If (BallsOnPlayfield > 0) Then
+' 		Debug.Print "Found ball"
+' 		On Error Resume Next
+' 		BallX = ActiveBall.X
+' 		BallY = ActiveBall.y
+' 	End If
+' 	' print position to debugger window
+' 	Debug.Print "BallX: " & BallX & ", BallY: " & BallY
+' End Sub
+
+' Dim PlayfieldTriggerToggle = 0
+' Sub BallTrackerTimer_Timer()
+' 	if PlayfieldTriggerToggle = 0 Then
+' 		PlayfieldTrigger.Enabled = False
+' 		PlayfieldTriggerToggle = 1
+' 	Else
+' 		PlayfieldTrigger.Enabled = True
+' 		PlayfieldTriggerToggle = 0
+' 	End If
+' End Sub
+
+' ' whenever playfield trigger is hit
+' Sub PlayfieldTrigger_Hit()
+' 	Debug.Print "BallX: " & ActiveBall.X & ", BallY: " & ActiveBall.Y
+' End Sub
 
 '////////////////////////////////////////////////////////////////////////////////
 '////          Mechanical Sounds Options, by Fleep                           ////
@@ -376,7 +420,7 @@ End Sub
 ' Define any Constants
 Const TableName = "TNA"
 Const myVersion = "1.0.0"
-Const MaxPlayers = 4
+Const MaxPlayers = 1
 Const MaxMultiplier = 4 'limit to 4x in this game
 Const MaxMultiballs = 4  ' max number of balls during multiballs
 Const MaxCredits = 20
@@ -696,6 +740,10 @@ Sub Table1_Init()
 '	If UseAltPlastics <> 0 Then
 '		Dim xx: For Each xx In PlasticsWalls: xx.image = "pf_plastics_alt": next
 '	End If
+
+' START BALL TRACKER
+	' BallTrackerTimer.Enabled = True
+
 
 End Sub
 Sub flasher001_Timer: Flasher001.visible = False: Flasher001.TimerEnabled = False: End Sub
@@ -2249,18 +2297,7 @@ End Sub
 Sub ResetForNewGame()
 
 	'increment ball counter************************
-	' initialize ball count file
-	Dim objFSO_ball
-	Dim outFile_ball
-	Dim objFile_ball
-
-	Set objFSO_ball=CreateObject("Scripting.FileSystemObject")
-
-	outFile_ball="C:\Users\richa\OneDrive\Desktop\data\ballcount.txt"
-	Set objFile_ball = objFSO_ball.CreateTextFile(outFile_ball,True)
-	objFile_ball.Write "1" & vbCrLf
-	objFile_ball.Close
-
+	WriteToFile outFile_ball_path, 1
 	'*********************************
 
 
@@ -2646,6 +2683,9 @@ End Sub
 ' if not, then check to see if this was the last ball (of the CurrentPlayer)
 '
 Sub EndOfBall2()
+	WriteToFile outFile_processing_ball_end_path, 1
+
+
 	If debugGeneral Then Debug.print "*****SUB:EndOfBall2()"
 	Pupevent 24
 	pDMDSetPage(pDMDBlank)
@@ -2712,21 +2752,12 @@ Sub EndOfBall2()
 
         BallsRemaining(CurrentPlayer) = BallsRemaining(CurrentPlayer)- 1
 
-		' initialize ball count file
-		Dim objFSO_ball
-		Dim outFile_ball
-		Dim objFile_ball
-
-		Set objFSO_ball=CreateObject("Scripting.FileSystemObject")
-
-		outFile_ball="C:\Users\richa\OneDrive\Desktop\data\ballcount.txt"
-		Set objFile_ball = objFSO_ball.CreateTextFile(outFile_ball,True)
-
         ' was that the last ball ?
         If(BallsRemaining(CurrentPlayer) <= 0)Then
 			'write ball number to disk (0 means game over)
-			objFile_ball.Write "0" & vbCrLf
-			objFile_ball.Close
+
+			WriteToFile outFile_ball_path, 0
+			WriteToFile outFile_score_path, 0
 
             debug.print "No More Balls, High Score Entry"
 			pDMDSetPage(pDMDBlank) 
@@ -2742,8 +2773,7 @@ Sub EndOfBall2()
 			Dim num_balls
 			num_balls = BallsPerGame - BallsRemaining(CurrentPlayer) + 1
 			debug.print "Num balls" & num_balls
-			objFile_ball.Write num_balls
-			objFile_ball.Close
+			WriteToFile outFile_ball_path, num_balls
 
             EndOfBallComplete()
         End If
@@ -2756,6 +2786,8 @@ End Sub
 ' move onto the next player (or the next ball of the same player)
 '
 Sub EndOfBallComplete()
+	WriteToFile outFile_processing_ball_end_path, 0
+
 	Dim i
     If debugGeneral Then debug.print "*****SUB: EndOfBallComplete()"
     ' are there multiple players playing this game ?
@@ -3512,16 +3544,14 @@ Sub AddScore(points)
 		'	Scorbit.SendUpdate Score(1), Score(2), Score(3), Score(4), Balls, CurrentPlayer, PlayersPlayingGame
 
 		' write score to disk
-		Set objFile_score = objFSO_score.CreateTextFile(outFile_score,True)
-		objFile_score.Write Score(CurrentPlayer) & vbCrLf
-		objFile_score.Close
+		WriteToFile outFile_score_path, Score(CurrentPlayer)
 
         ' update the score displays
         DMDScore
     End if
 
 
-	debug.print "score: " & Score(CurrentPlayer)
+	' debug.print "score: " & Score(CurrentPlayer)
 
 
 ' If debugGeneral Then debug.print "*****SUB:" & "AddScore(" & points * xMultiplier & "), Total=" & Score(CurrentPlayer) 

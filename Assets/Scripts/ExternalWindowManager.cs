@@ -180,17 +180,17 @@ public class ExternalWindowManager : MonoBehaviour
             score = Int32.Parse(ReadFile(@"C:\Users\Pinbot\Desktop\data\score.txt")); 
         }
         catch{
-            UnityEngine.Debug.Log("Could not read score");
+            // UnityEngine.Debug.Log("Could not read score");
         }
         try {
             ball = Int32.Parse(ReadFile(@"C:\Users\Pinbot\Desktop\data\ballcount.txt"));
         }
         catch{
-            UnityEngine.Debug.Log("Could not read ball");
+            // UnityEngine.Debug.Log("Could not read ball");
         }
 
         //Uncomment for debug
-        UnityEngine.Debug.Log("Ball " + ball + ", Score " + score);
+        // UnityEngine.Debug.Log("Ball " + ball + ", Score " + score);
 
         lg.DrawImage(current, new Point(0, 0));
 

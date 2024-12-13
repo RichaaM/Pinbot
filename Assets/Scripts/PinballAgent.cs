@@ -61,11 +61,11 @@ public class PinballAgent : Agent
 
         while (true)
         {
-            Debug.Log("Pulling back plunger...");
+            // Debug.Log("Pulling back plunger...");
             // pull back the plunger using the enter key
             inputSimulator.Keyboard.KeyDown(VirtualKeyCode.RETURN);
-            yield return new WaitForSecondsRealtime(0.5f);
-            Debug.Log("Releasing plunger...");
+            yield return new WaitForSecondsRealtime(1.0f);
+            // Debug.Log("Releasing plunger...");
             
             inputSimulator.Keyboard.KeyUp(VirtualKeyCode.RETURN);
             yield return new WaitForSecondsRealtime(0.5f);
@@ -100,20 +100,20 @@ public class PinballAgent : Agent
         switch (action)
         {
             case 0:
-                Debug.Log("Idle action");
+                // Debug.Log("Idle action");
                 break;
             case 1:
                 inputSimulator.Keyboard.KeyDown(VirtualKeyCode.LSHIFT);
-                Debug.Log("Left flipper pressed");
+                // Debug.Log("Left flipper pressed");
                 break;
             case 2:
                 inputSimulator.Keyboard.KeyDown(VirtualKeyCode.RSHIFT);
-                Debug.Log("Right flipper pressed");
+                // Debug.Log("Right flipper pressed");
                 break;
             case 3:
                 inputSimulator.Keyboard.KeyDown(VirtualKeyCode.LSHIFT);
                 inputSimulator.Keyboard.KeyDown(VirtualKeyCode.RSHIFT);
-                Debug.Log("Both flippers pressed");
+                // Debug.Log("Both flippers pressed");
                 break;
             default:
                 Debug.LogError("Unknown action: " + action);
@@ -142,13 +142,19 @@ public class PinballAgent : Agent
         if (previousBall < ExternalWindowManager.Ball)
         {
             Debug.Log("Dropped Ball:" + previousBall);
-            if (previousBall != 0) // If we drop a ball thats is not game over or starting ball.
+            if (previousBall != 0) // If we drop a ball that's not the starting ball.
             {
-                AddReward(-0.3f); // Droped the ball add negative reward (aka punish); -0.3 is pretty bad. Thats like 30k in points.
+            Debug.Log("Penality for dropping ball:" + previousBall);
+            AddReward(-0.3f); // Dropped the ball, add negative reward (aka punish); -0.3 is pretty bad. That's like 30k in points.
             }
 
             //reset keys
             ResetKeys();
+        }
+        else if (previousBall == 3 && ExternalWindowManager.Ball == 0) // Penalize dropping the last ball
+        {
+            Debug.Log("Penality for dropping ball:" + previousBall);
+            AddReward(-0.3f); // Dropped the last ball, add negative reward (aka punish); -0.3 is pretty bad.
         }
 
         // Set previous score;
