@@ -76,6 +76,10 @@ public class PinballAgent : Agent
     {
         AddVectorObs(ExternalWindowManager.Ball);
         AddVectorObs(ExternalWindowManager.Score);
+        AddVectorObs(ExternalWindowManager.PoseX);
+        AddVectorObs(ExternalWindowManager.PoseY);
+        AddVectorObs(ExternalWindowManager.VelX);
+        AddVectorObs(ExternalWindowManager.VelY);
     }
 
     public override void AgentAction(float[] vectorAction)
@@ -140,7 +144,7 @@ public class PinballAgent : Agent
         //2) Ball
         if (previousBall < ExternalWindowManager.Ball)
         {
-            Debug.Log("Dropped Ball:" + previousBall);
+            // Debug.Log("Dropped Ball:" + previousBall);
             if (previousBall != 0) // If we drop a ball that's not the starting ball.
             {
                 AddReward(-0.3f); // Dropped the ball, add negative reward (aka punish); -0.3 is pretty bad. That's like 30k in points.
@@ -151,7 +155,7 @@ public class PinballAgent : Agent
         }
         else if (previousBall == 3 && ExternalWindowManager.Ball == 0) // Penalize dropping the last ball
         {
-            Debug.Log("Penality for dropping ball:" + previousBall);
+            // Debug.Log("Penalty for dropping ball:" + previousBall);
             AddReward(-0.3f); // Dropped the last ball, add negative reward (aka punish); -0.3 is pretty bad.
         }
 

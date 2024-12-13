@@ -225,8 +225,11 @@ Sub BallTrackerTimer_Timer
 	data_to_write = ""
 	For b = 0 to Ubound(BOT)
 		' print out the ball position to the debugger
-		' data is in format ball #, x, y
-		data_to_write = data_to_write & b & "," & BOT(b).x & "," & BOT(b).y & vbCrLf
+		' data is in format ball x, y, with a seperate row for each ball
+		
+		' TEMP: Just write active ball
+		' data_to_write = data_to_write & BOT(b).x & "," & BOT(b).y & vbCrLf
+		data_to_write = BOT(b).x & "," & BOT(b).y & "," & BOT(b).VelX & "," & BOT(b).VelY
 	Next
 	WriteToFile outFile_position_path, data_to_write
 End Sub

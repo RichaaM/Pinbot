@@ -38,9 +38,17 @@ public class ExternalWindowManager : MonoBehaviour
 
     public static long Score => score;
     public static int Ball => ball;
+    public static float PoseX => pose_x;
+    public static float PoseY => pose_y;
+    public static float VelX => vel_x;
+    public static float VelY => vel_y;
 
     private static long score;
     private static int ball;
+    private static float pose_x;
+    private static float pose_y;
+    private static float vel_x;
+    private static float vel_y;
 
     public static int frame = 0; 
 
@@ -176,17 +184,41 @@ public class ExternalWindowManager : MonoBehaviour
             new Rectangle(new Point(scoreXOffset, scoreYOffset), scoreSize),
             GraphicsUnit.Pixel);
 
+        // get score
         try{
             score = Int32.Parse(ReadFile(@"C:\Users\Pinbot\Desktop\data\score.txt")); 
         }
         catch{
             // UnityEngine.Debug.Log("Could not read score");
         }
+        // get ball number
         try {
             ball = Int32.Parse(ReadFile(@"C:\Users\Pinbot\Desktop\data\ballcount.txt"));
         }
         catch{
             // UnityEngine.Debug.Log("Could not read ball");
+        }
+        // get ball position
+        try {
+            float[] pose = ReadCSVLine(@"C:\Users\Pinbot\Desktop\data\ballpose.txt");
+            // if there is no pose, set the values to 0,0,0,0
+            if (pose.GetLength(0) == 0)
+            {
+                pose = new float[] {0, 0, 0, 0};
+            }
+            // assign the values to the variables
+            pose_x = pose[0];
+            pose_y = pose[1];
+            vel_x = pose[2];
+            vel_y = pose[3];
+            // print the result to the debugger
+            // for (int i = 0; i < pose.GetLength(0); i++)
+            // {
+            //     UnityEngine.Debug.Log("Pose " + pose[i]);
+            // }
+        }
+        catch{
+            // UnityEngine.Debug.Log("Could not read ball position");
         }
 
         //Uncomment for debug
@@ -208,6 +240,64 @@ public class ExternalWindowManager : MonoBehaviour
         yield return new WaitForSeconds(1);
     }
 
+    static float[] ReadCSVLine(string filePath) {
+        if (!File.Exists(filePath))
+        {
+            throw new FileNotFoundException($"The file '{filePath}' does not exist.");
+        }
+        // Read all lines and filter out empty/whitespace lines
+        string[] lines = File.ReadAllLines(filePath)
+                            .Where(line => !string.IsNullOrWhiteSpace(line))
+                            .ToArray();
+
+        // make sure one line remains
+        if (lines.Length != 1)
+        {
+            throw new FormatException($"File '{filePath}' does not have exactly one line.");
+        }
+
+        // split up the line and assign each value to the array as a float
+        string[] split_line = lines[0].Split(',');
+        float[] data = new float[split_line.Length];
+        for (int i = 0; i < split_line.Length; i++)
+        {
+            data[i] = float.Parse(split_line[i]);
+        }
+        return data;
+    }
+
+    // static double[,] ReadCsvFile(string filePath)
+    // {
+    //     if (!File.Exists(filePath))
+    //     {
+    //         throw new FileNotFoundException($"The file '{filePath}' does not exist.");
+    //     }
+
+    //     // Read all lines and filter out empty/whitespace lines
+    //     string[] lines = File.ReadAllLines(filePath)
+    //                         .Where(line => !string.IsNullOrWhiteSpace(line))
+    //                         .ToArray();
+
+    //     int rowCount = lines.Length;
+    //     double[,] data = new double[rowCount, 4];
+
+    //     for (int i = 0; i < rowCount; i++)
+    //     {
+    //         string[] line = lines[i].Split(',');
+
+    //         if (line.Length != 4)
+    //         {
+    //             throw new FormatException($"Line {i + 1} in the file does not have exactly four values.");
+    //         }
+
+    //         data[i, 0] = double.Parse(line[0]);
+    //         data[i, 1] = double.Parse(line[1]);
+    //         data[i, 2] = double.Parse(line[2]);
+    //         data[i, 3] = double.Parse(line[3]);
+    //     }
+
+    //     return data;
+    // }
 
 
     // [DllImport ("User32.dll")]
