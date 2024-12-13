@@ -210,19 +210,25 @@ End Sub
 ' data_path = "C:\Users\Pinbot\Desktop\data"
 
 ' Initialize score and ball file
-Dim outFile_score_path, outFile_ball_path
+Dim outFile_score_path, outFile_ball_path, outFile_position_path
 outFile_score_path = data_path & "\score.txt"
 outFile_ball_path = data_path & "\ballcount.txt"
+outFile_position_path = data_path & "\ballpose.txt"
 WriteToFile outFile_score_path, 0
 WriteToFile outFile_ball_path, 0
+WriteToFile outFile_position_path, ""  'if empty, no balls are on playfield
 
 Sub BallTrackerTimer_Timer
 	Dim BOT, b
 	BOT = GetBalls
+	Dim data_to_write
+	data_to_write = ""
 	For b = 0 to Ubound(BOT)
 		' print out the ball position to the debugger
-		Debug.Print "Ball " & b & " X: " & BOT(b).x & " Y: " & BOT(b).y
+		' data is in format ball #, x, y
+		data_to_write = data_to_write & b & "," & BOT(b).x & "," & BOT(b).y & vbCrLf
 	Next
+	WriteToFile outFile_position_path, data_to_write
 End Sub
 
 
