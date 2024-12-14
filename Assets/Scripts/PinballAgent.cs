@@ -74,12 +74,13 @@ public class PinballAgent : Agent
 
     public override void CollectObservations()
     {
-        AddVectorObs(ExternalWindowManager.Ball);
-        AddVectorObs(ExternalWindowManager.Score);
-        AddVectorObs(ExternalWindowManager.PoseX);
-        AddVectorObs(ExternalWindowManager.PoseY);
-        AddVectorObs(ExternalWindowManager.VelX);
-        AddVectorObs(ExternalWindowManager.VelY);
+        // AddVectorObs(ExternalWindowManager.Ball);
+        // AddVectorObs(ExternalWindowManager.Score);
+        // Add the ball position and velocity, normalizing to a range of 0 to 1
+        AddVectorObs(ExternalWindowManager.PoseX/2000.0f);
+        AddVectorObs(ExternalWindowManager.PoseY/2000.0f);
+        AddVectorObs(ExternalWindowManager.VelX/2000.0f); 
+        AddVectorObs(ExternalWindowManager.VelY/2000.0f); 
     }
 
     public override void AgentAction(float[] vectorAction)
@@ -132,7 +133,7 @@ public class PinballAgent : Agent
             // Debug.Log("Score increased: " + (ExternalWindowManager.Score - previousScore));
             //Small benefit score is going up. 
             //Assume max score 999,999,999 however, each step max will only be a fraction of that.
-            AddReward(0.00001f * (ExternalWindowManager.Score - previousScore)); //Small 2k large 20k, not sure what largest bonus is but this will do.
+            AddReward(0.00003f * (ExternalWindowManager.Score - previousScore)); //Small 2k large 20k, not sure what largest bonus is but this will do.
         }
         else
         {
@@ -148,7 +149,7 @@ public class PinballAgent : Agent
         // 1400 is just above the flippers. Lower values are higher up.
         if (ExternalWindowManager.PoseY < 1400.0f)
         {
-            AddReward(0.001f); //Small reward for keeping the ball in the air
+            AddReward(0.005f); //Small reward for keeping the ball in the air
         }
 
         //3) Ball
@@ -183,7 +184,7 @@ public class PinballAgent : Agent
             // Reward the agent for end of round.
             // I think this is confusing the training, I think use below OR use score step diff (line 103-110)
             //SetReward(0.000000001f * ExternalWindowManager.Score); // Read the scoreboard. Assume max score 999,999,999
-            Debug.Log($"Game Ended Score: {ExternalWindowManager.Score} | Total Reward: {GetCumulativeReward().ToString()}");
+            // Debug.Log($"Game Ended Score: {previousScore} | Total Reward: {GetCumulativeReward().ToString()}");
 
             // Press 1 button to start new game
             inputSimulator.Keyboard.KeyPress(VirtualKeyCode.VK_1); 
