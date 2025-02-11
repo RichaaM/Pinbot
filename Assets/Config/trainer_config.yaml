@@ -28,14 +28,14 @@ default:
 VisualPinball:
     trainer: ppo
     use_recurrent: true
-    sequence_length: 32
-    num_layers: 1
+    sequence_length: 16
+    num_layers: 2
     hidden_units: 128
     memory_size: 128
-    beta: 1e-4
-    num_epoch: 3
-    buffer_size: 1024
-    batch_size: 32
+    beta: 5e-5
+    num_epoch: 5
+    buffer_size: 4096
+    batch_size: 256
     max_steps: 5.0e7
     summary_freq: 1000
     time_horizon: 128
@@ -44,6 +44,6 @@ VisualPinball:
             strength: 1.0
             gamma: 0.99
         curiosity:
-            strength: 0.01
-            gamma: 0.99
+            strength: 0.005
+            gamma: 0.95
             encoding_size: 128
