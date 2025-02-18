@@ -186,21 +186,21 @@ public class ExternalWindowManager : MonoBehaviour
 
         // get score
         try{
-            score = Int32.Parse(ReadFile(@"C:\Users\Pinbot\Desktop\data\score.txt")); 
+            score = Int32.Parse(ReadFile(@"D:\CMU\Assignments\IRL_Project\data\score.txt")); 
         }
         catch{
             // UnityEngine.Debug.Log("Could not read score");
         }
         // get ball number
         try {
-            ball = Int32.Parse(ReadFile(@"C:\Users\Pinbot\Desktop\data\ballcount.txt"));
+            ball = Int32.Parse(ReadFile(@"D:\CMU\Assignments\IRL_Project\data\ballcount.txt"));
         }
         catch{
             // UnityEngine.Debug.Log("Could not read ball");
         }
         // get ball position
         try {
-            float[] pose = ReadCSVLine(@"C:\Users\Pinbot\Desktop\data\ballpose.txt");
+            float[] pose = ReadCSVLine(@"D:\CMU\Assignments\IRL_Project\data\ballpose.txt");
             // if there is no pose, set the values to the shooter lane
             // this way there is no bonus for the ball being in the air
             // and the model will probably get less confused
