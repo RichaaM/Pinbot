@@ -18,24 +18,6 @@ using WindowsInput.Native;
 
 public class ExternalWindowManager : MonoBehaviour
 {
-    // private const int scoreWidth = 135;
-    // private const int scoreHeight = 22;
-    // private const int scoreYOffset = 243;
-    // private const int scoreXOffset = 436;
-    // private const int numberHeight = 22;
-    // private const int numberWidth = 15;
-    // private const int ballYOffset = 198;
-    // private const int ballXOffset = 556;
-
-    private const int scoreWidth = 104;
-    private const int scoreHeight = 20;
-    private const int scoreYOffset = 4;
-    private const int scoreXOffset = 160;
-    private const int numberHeight = 18;
-    private const int numberWidth = 13;
-    private const int ballYOffset = 45;
-    private const int ballXOffset = 251;
-
     public static long Score => score;
     public static int Ball => ball;
     public static float PoseX => pose_x;
@@ -52,9 +34,6 @@ public class ExternalWindowManager : MonoBehaviour
 
     public static int frame = 0; 
 
-    // public string FilePath = @"C:\Program Files (x86)\Microsoft Games\Pinball\pinball.exe";
-    // public string WorkingDirectory = @"C:\Program Files (x86)\Microsoft Games\Pinball";
-    // public string WindowTitle = "3D Pinball for Windows - Space Cadet";
     public string FilePath = @"C:\Visual Pinball\VPinballX.exe";
     public string WorkingDirectory = @"C:\Visual Pinball";
     public string WindowTitle = "Visual Pinball Player";
@@ -70,22 +49,11 @@ public class ExternalWindowManager : MonoBehaviour
             Application.runInBackground = true;
     }
 
-    // To read from txt file
-    string ReadFile(string filePath)
-    {
-             
-        // Read the entire file content
-        string content = File.ReadAllText(filePath);
-        
-        return content; 
-    }
-
     // Start is called before the first frame update
     void Start()
     {
         rect = new User32.Rect();
-        proc = Process.GetProcesses().Where(x => x.ProcessName.Contains("VPinballX")).FirstOrDefault();
-        Process[] processes = Process.GetProcesses();
+        proc = Process.GetProcesses().FirstOrDefault(x => x.ProcessName.Contains("VPinballX"));
         
         if (proc == null)
         {
@@ -139,61 +107,56 @@ public class ExternalWindowManager : MonoBehaviour
         {
             //Uncomment for debug
             // UnityEngine.Debug.Log($"Found Window {width},{height}");
+
+            // Create Images in memory
+            Bitmap bmp = new Bitmap(width, height);
+            Graphics graphics = Graphics.FromImage(bmp);
+            graphics.CopyFromScreen(rect.left, rect.top, 0, 0, new Size(bmp.Width, bmp.Height), CopyPixelOperation.SourceCopy); //ARGB32
+
+            //Copy from screen into image
+            using (MemoryStream ms = new MemoryStream())
+            {
+                bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+
+                // //Uncomment - If you weant to save frames to disk
+                // bmp.Save("C:/Users/richa/OneDrive/Desktop/frames/" + frame + ".bmp", System.Drawing.Imaging.ImageFormat.Bmp);
+                // frame++;
+
+                var buffer = ms.ToArray();
+
+                var Height = 116;
+                var Width = 152;
+
+                Texture2D texture = new Texture2D(Width, Height, TextureFormat.R8, false, false);
+                texture.LoadImage(buffer);
+                texture.Apply();
+
+                UnityEngine.Graphics.Blit(texture, renderTexture);
+                UnityEngine.Object.Destroy(texture);
+            }
+
+            graphics.Dispose();
+            bmp.Dispose();
         }
 
-        // Create Images in memory
-        Bitmap bmp = new Bitmap(width, height);
-        Bitmap current = new Bitmap(scoreWidth, scoreHeight);
-        Bitmap last = new Bitmap(scoreWidth, scoreHeight);
-        Bitmap number = new Bitmap(numberWidth, numberHeight);
-        Graphics graphics = Graphics.FromImage(bmp);
-        Graphics cg = Graphics.FromImage(current);
-        Graphics lg = Graphics.FromImage(last);
-        Graphics ng = Graphics.FromImage(number);
+        ReadScoreAndBallData();
 
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        yield return new WaitForSeconds(1);
+    }
 
-        //Copy from screen into image
-        graphics.CopyFromScreen(rect.left, rect.top, 0, 0, new Size(bmp.Width, bmp.Height), CopyPixelOperation.SourceCopy); //ARGB32
-        using (MemoryStream ms = new MemoryStream())
-        {
-            bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-
-            // //Uncomment - If you weant to save frames to disk
-            // bmp.Save("C:/Users/richa/OneDrive/Desktop/frames/" + frame + ".bmp", System.Drawing.Imaging.ImageFormat.Bmp);
-            // frame++;
-
-            var buffer = new byte[ms.Length];
-            ms.Position = 0;
-            ms.Read(buffer, 0, buffer.Length);
-
-            var Height = 116;
-            var Width = 152;
-
-            Texture2D texture = new Texture2D(Width, Height, TextureFormat.R8, false, false);
-            texture.LoadImage(buffer);
-            texture.Apply();
-
-            UnityEngine.Graphics.Blit(texture, renderTexture);
-            UnityEngine.Object.Destroy(texture);
-        }
-
-        // Get scoreboard numbers
-        Size scoreSize = new Size(scoreWidth, scoreHeight);
-        cg.DrawImage(bmp,
-            new Rectangle(new Point(0, 0), scoreSize),
-            new Rectangle(new Point(scoreXOffset, scoreYOffset), scoreSize),
-            GraphicsUnit.Pixel);
-
+    private void ReadScoreAndBallData() {
         // get score
         try{
-            score = Int32.Parse(ReadFile(@"C:\Users\Pinbot\Desktop\data\score.txt")); 
+            score = Int32.Parse(File.ReadAllText(@"C:\Users\Pinbot\Desktop\data\score.txt")); 
         }
         catch{
             // UnityEngine.Debug.Log("Could not read score");
         }
         // get ball number
         try {
-            ball = Int32.Parse(ReadFile(@"C:\Users\Pinbot\Desktop\data\ballcount.txt"));
+            ball = Int32.Parse(File.ReadAllText(@"C:\Users\Pinbot\Desktop\data\ballcount.txt"));
         }
         catch{
             // UnityEngine.Debug.Log("Could not read ball");
@@ -222,24 +185,8 @@ public class ExternalWindowManager : MonoBehaviour
         catch{
             // UnityEngine.Debug.Log("Could not read ball position");
         }
-
         //Uncomment for debug
         // UnityEngine.Debug.Log("Ball " + ball + ", Score " + score);
-
-        lg.DrawImage(current, new Point(0, 0));
-
-        ng.Dispose();
-        lg.Dispose();
-        cg.Dispose();
-        graphics.Dispose();
-        number.Dispose();
-        last.Dispose();
-        current.Dispose();
-        bmp.Dispose();
-      
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
-        yield return new WaitForSeconds(1);
     }
 
     static float[] ReadCSVLine(string filePath) {
@@ -266,73 +213,6 @@ public class ExternalWindowManager : MonoBehaviour
             data[i] = float.Parse(split_line[i]);
         }
         return data;
-    }
-
-    // static double[,] ReadCsvFile(string filePath)
-    // {
-    //     if (!File.Exists(filePath))
-    //     {
-    //         throw new FileNotFoundException($"The file '{filePath}' does not exist.");
-    //     }
-
-    //     // Read all lines and filter out empty/whitespace lines
-    //     string[] lines = File.ReadAllLines(filePath)
-    //                         .Where(line => !string.IsNullOrWhiteSpace(line))
-    //                         .ToArray();
-
-    //     int rowCount = lines.Length;
-    //     double[,] data = new double[rowCount, 4];
-
-    //     for (int i = 0; i < rowCount; i++)
-    //     {
-    //         string[] line = lines[i].Split(',');
-
-    //         if (line.Length != 4)
-    //         {
-    //             throw new FormatException($"Line {i + 1} in the file does not have exactly four values.");
-    //         }
-
-    //         data[i, 0] = double.Parse(line[0]);
-    //         data[i, 1] = double.Parse(line[1]);
-    //         data[i, 2] = double.Parse(line[2]);
-    //         data[i, 3] = double.Parse(line[3]);
-    //     }
-
-    //     return data;
-    // }
-
-
-    // [DllImport ("User32.dll")]
-    // static extern int SetForegroundWindow(IntPtr point);
-
-    // public void TypeKey(char c)
-    // {
-    //     // Process p = Process.GetProcessesByName("").FirstOrDefault();
-    //     if (proc != null)
-    //     {
-    //         IntPtr h = proc.MainWindowHandle;
-    //         SetForegroundWindow(h);
-    //         System.Windows.Forms.SendKeys.SendWait("z");
-    //     }
-    // }
-
-    /// <summary>
-    /// Compare images to see if pixels match
-    /// </summary>
-    /// <param name="a">Image 1</param>
-    /// <param name="b">Image 2</param>
-    /// <returns></returns>
-    static bool Compare(Bitmap a, Bitmap b)
-    {
-        for (int x = 0; x < a.Width; x++)
-            for (int y = 0; y < a.Height; y++)
-            {
-                if (a.GetPixel(x, y) != b.GetPixel(x, y))
-                {
-                    return false;
-                }
-            }
-        return true;
     }
 
     /// <summary>
