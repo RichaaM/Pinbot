@@ -145,9 +145,10 @@ public class PinballAgent : Agent
 
         //2) Location
         // If the ball is in the air (above the flippers), give a small reward
+        // Only reward if the ball is actually moving -- so it ignores the ball being stuck
         // This is to encourage the agent to keep the ball in the air
         // 1400 is just above the flippers. Lower values are higher up.
-        if (ExternalWindowManager.PoseY < 1400.0f)
+        if (ExternalWindowManager.PoseY < 1400.0f && (ExternalWindowManager.VelY > 0.1f || ExternalWindowManager.VelX > 0.1f))
         {
             AddReward(0.005f); //Small reward for keeping the ball in the air
         }
