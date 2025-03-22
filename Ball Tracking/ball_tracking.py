@@ -2,7 +2,7 @@ import numpy as np
 import cv2 as cv
 
 # Open video
-cap = cv.VideoCapture(r"D:\CMU\Assignments\IRL_Project\Ball Tracking\pinball_yt.mp4")
+cap = cv.VideoCapture(r"D:\CMU\Assignments\IRL_Project\Pinbot\Ball Tracking\pinball_yt.mp4")
 
 if not cap.isOpened():
     print("Could not open file")

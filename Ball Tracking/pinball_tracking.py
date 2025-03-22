@@ -37,8 +37,8 @@ def initialize_kalman(fps):
 
 # Function to get locations of all lights -> To be used as a calibration step before each run
 def get_light_locations():
-    cap = cv2.VideoCapture("D:\CMU\Assignments\IRL_Project\Ball Tracking\lights.mp4")
-    
+    cap = cv2.VideoCapture("D:\CMU\Assignments\IRL_Project\Pinbot\Ball Tracking\lights.mp4")
+        
     if not cap.isOpened():
         print("Error: Could not open video in get_light_locations")
         return {}
@@ -69,7 +69,7 @@ def get_light_locations():
     
 # def track_pinball(video_path, output_path=None):
 def track_pinball():
-    cap = cv2.VideoCapture("D:\CMU\Assignments\IRL_Project\Ball Tracking\pinball_yt.mp4")
+    cap = cv2.VideoCapture("D:\CMU\Assignments\IRL_Project\Pinbot\Ball Tracking\pinball_yt.mp4")
 
     if not cap.isOpened():
         print("Error: Could not open video.")
@@ -165,9 +165,11 @@ def track_pinball():
             kf.correct(measurement)
             corrected_state = kf.statePost
             kf_x, kf_y = int(corrected_state[0]), int(corrected_state[1])
+            # ball_positions.append((x, y))
         else:
             measurement = None
             last_ball_position = None
+            # ball_positions.append(None)
         
         # Using current state estimate from the KF
         

@@ -8,7 +8,7 @@ def pick_color(image_path):
             pixel = hsv[y, x]
             print(f"HSV Value at ({x}, {y}): {pixel}")
 
-    img = cv2.imread("D:\CMU\Assignments\IRL_Project\Ball Tracking\img5.png")
+    img = cv2.imread("D:\CMU\Assignments\IRL_Project\Pinbot\Ball Tracking\img5.png")
     cv2.imshow("Pick a point (click on the ball)", img)
     cv2.setMouseCallback("Pick a point (click on the ball)", mouse_callback)
 
