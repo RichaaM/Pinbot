@@ -60,3 +60,5 @@ Mono**/
 3D*Pinball*Ml-Agents_Data/
 .vsconfig
 csharp_timers.json
+
+__pycache__/
