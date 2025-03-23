@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from kalman_filter import KalmanFilter
+import time
 
 # Function to get locations of all lights -> To be used as a calibration step before each run
 def get_light_locations():
@@ -48,7 +49,7 @@ def get_light_locations():
         if circles is not None:
             circles = np.round(circles[0, :]).astype("int")
             for (x, y, r) in circles:
-                if x < 1600 and x > 50 and y > 150 and y < 1000:    # Only consider play area
+                if x < 1700 and x > 50 and y > 150 and y < 1000:    # Only consider play area
                     light_locs.add((x, y, r))
 
     print("Retrieved light locations")
@@ -91,6 +92,11 @@ def track_pinball():
     
     light_locs = get_light_locations()
     
+    # Timer
+    start = time.perf_counter()
+    end = time.perf_counter()
+    pause = False
+    
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
@@ -100,6 +106,12 @@ def track_pinball():
         # cv2.circle(frame, (50, 1000), 10, (0, 255, 0), 5)
         # cv2.circle(frame, (1600, 1000), 10, (0, 255, 255), 5)
         # cv2.circle(frame, (1600, 150), 10, (255, 0, 0), 5)
+        
+        end = time.perf_counter()
+        if end - start > 7:
+            start = time.time()
+            pause = False
+            print("TIMER STOPPED")
         
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -135,7 +147,7 @@ def track_pinball():
         if circles is not None:
             circles = np.round(circles[0, :]).astype("int")
             for (x, y, r) in circles:
-                if not is_near_light(x, y, r, light_locs, frame) and x < 1600 and x > 50 and y > 150 and y < 1000:    # Only consider play area
+                if not is_near_light(x, y, r, light_locs, frame) and x < 1700 and x > 50 and y > 150 and y < 1000:    # Only consider play area
                     possible_balls.append((x, y, r))
                     # cv2.circle(frame, (x, y), r + 10, (0, 0, 255), 5)
 
@@ -153,41 +165,47 @@ def track_pinball():
                         best_ball = (x, y, r)
                 else:
                     best_ball = (x, y, r)
-
-        if best_ball:
-            x, y, r = best_ball
-            cv2.circle(frame, (x, y), r, (0, 0, 255), 5)
-            
-            # x > 1600 -> Drain area 
-            # Only consider play area
-            if x < 1600 and x > 50 and y > 150 and y < 1000:
-                ball_positions.append((x, y))
-                if not kf.initialized:
-                    kf.__init__(2, 1, 10)
-                    kf.initialize((x-r, y-r, 2*r, 2*r))
-                    
-                kx, ky, kw, kh = kf.predict()
-                kf.update((x-r, y-r, 2*r, 2*r))
-                # cv2.rectangle(frame, (kx, ky),(kx+kw, ky+kh), (255, 0, 0), 3)  
-            else:
-                ball_positions.append(None)
-        else:
-            if kf.initialized:
-                kx, ky, kw, kh = kf.predict()
+        if not pause:
+            if best_ball:
+                x, y, r = best_ball
+                cv2.circle(frame, (x, y), r, (0, 0, 255), 5)
+                
+                # x > 1650 -> Drain area
+                if x > 1650:
+                    print("TIMER STARTED")
+                    start = time.perf_counter()
+                    pause = True
+                    continue
                 
                 # Only consider play area
-                if x < 1600 and x > 50 and y > 150 and y < 1000:
-                    # cv2.rectangle(frame, (kx, ky),(kx+kw, ky+kh), (0, 0, 255), 3)
-                    ball_positions.append((kx, ky))
+                if x < 1700 and x > 50 and y > 150 and y < 1000:
+                    ball_positions.append((x, y))
+                    if not kf.initialized:
+                        kf.__init__(2, 1, 10)
+                        kf.initialize((x-r, y-r, 2*r, 2*r))
+                        
+                    kx, ky, kw, kh = kf.predict()
+                    kf.update((x-r, y-r, 2*r, 2*r))
+                    # cv2.rectangle(frame, (kx, ky),(kx+kw, ky+kh), (255, 0, 0), 3)  
                 else:
                     ball_positions.append(None)
             else:
-                ball_positions.append(None)
+                if kf.initialized:
+                    kx, ky, kw, kh = kf.predict()
+                    
+                    # Only consider play area
+                    if x < 1700 and x > 50 and y > 150 and y < 1000:
+                        # cv2.rectangle(frame, (kx, ky),(kx+kw, ky+kh), (0, 0, 255), 3)
+                        ball_positions.append((kx, ky))
+                    else:
+                        ball_positions.append(None)
+                else:
+                    ball_positions.append(None)
 
-        # Draw Ball Trajectory
-        for i in range(1, len(ball_positions)):
-            if ball_positions[i-1] is not None and ball_positions[i] is not None:
-                cv2.line(frame, ball_positions[i-1], ball_positions[i], (255, 0, 0), 2)
+            # Draw Ball Trajectory
+            for i in range(1, len(ball_positions)):
+                if ball_positions[i-1] is not None and ball_positions[i] is not None:
+                    cv2.line(frame, ball_positions[i-1], ball_positions[i], (255, 0, 0), 2)            
 
         cv2.imshow('Filtered Grayscale', fg_mask)  # Left window (Filtered grayscale)
         cv2.imshow('Pinball Tracking', frame)  # Right window (Final tracking output)
